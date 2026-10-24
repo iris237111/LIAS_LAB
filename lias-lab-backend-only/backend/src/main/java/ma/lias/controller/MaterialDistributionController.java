@@ -1,0 +1,4 @@
+package ma.lias.controller;
+import ma.lias.entity.*; import ma.lias.repository.*; import ma.lias.service.AuditService; import org.springframework.http.*; import org.springframework.web.bind.annotation.*; import java.util.*;
+@RestController @RequestMapping("/api/material-distributions")
+public class MaterialDistributionController { private final MaterialDistributionRepository repo; private final AuditService audit; public MaterialDistributionController(MaterialDistributionRepository repo, AuditService audit){this.repo=repo;this.audit=audit;} @GetMapping public List<MaterialDistribution> all(){return repo.findAll();} @PostMapping public ResponseEntity<MaterialDistribution> create(@RequestBody MaterialDistribution body){MaterialDistribution saved=repo.save(body); audit.log("CREATE","MaterialDistribution",saved.getId(),"Distribution matériel"); return ResponseEntity.status(HttpStatus.CREATED).body(saved);} }

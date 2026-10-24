@@ -1,0 +1,46 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: lias-backend-postgres
+    environment:
+      POSTGRES_DB: lias_lab
+      POSTGRES_USER: lias
+      POSTGRES_PASSWORD: lias
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lias -d lias_lab"]
+      interval: 10s
+      timeout: 5s
+      retries: 8
+
+  backend:
+    build: ./backend
+    container_name: lias-backend-api
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/lias_lab
+      DB_USER: lias
+      DB_PASSWORD: lias
+      JWT_SECRET: CHANGE_THIS_SECRET_64_BYTES_MINIMUM_FOR_PRODUCTION_2026_BACKEND_ONLY
+      CORS_ORIGINS: http://localhost:5173,http://localhost:3000,http://localhost
+      MAIL_ENABLED: ${MAIL_ENABLED:-false}
+      SMTP_HOST: ${SMTP_HOST:-localhost}
+      SMTP_PORT: ${SMTP_PORT:-1025}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_AUTH: ${SMTP_AUTH:-false}
+      SMTP_STARTTLS: ${SMTP_STARTTLS:-false}
+      UPLOAD_DIR: uploads
+    ports:
+      - "8081:8080"
+    volumes:
+      - uploads_data:/app/uploads
+
+volumes:
+  postgres_data:
+  uploads_data:

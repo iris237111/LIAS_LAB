@@ -1,0 +1,1 @@
+ALTER TABLE messages ADD COLUMN IF NOT EXISTS receiver_id BIGINT REFERENCES users(id);
